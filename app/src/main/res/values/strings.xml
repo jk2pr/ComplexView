@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MindValley</string>
+    <string name="channel">Channels</string>
+    <string name="new_episode">New Episodes</string>
+</resources>
