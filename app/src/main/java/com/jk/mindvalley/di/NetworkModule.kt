@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(ApplicationComponent::class)
-class NetworkModule {
+object NetworkModule  {
     @Provides
     @Singleton
     fun getRetrofit(): IApi {

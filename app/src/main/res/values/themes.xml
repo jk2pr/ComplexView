@@ -12,6 +12,7 @@
         <!-- Customize your theme here. -->
         <item name="android:fontFamily">@font/gilroy_extra_bold</item>
     </style>
+
     <style name="mentoring">
         <item name="android:textSize">30sp</item>
         <item name="android:letterSpacing">0.01</item>
@@ -22,5 +23,19 @@
         <item name="android:textSize">@dimen/sp_20</item>
         <item name="android:letterSpacing">0.02</item>
         <item name="android:textColor">#95989D</item>
+    </style>
+
+    <style name="styleTitleChannel">
+        <item name="android:textSize">17sp</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <style name="styleTitle">
+        <item name="android:textSize">13sp
+        </item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textColor">#95989D</item>
+
     </style>
 </resources>

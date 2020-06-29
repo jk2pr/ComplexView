@@ -1,12 +1,12 @@
 package com.jk.mindvalley.ui.main
 
 import android.util.Log
-import androidx.lifecycle.ViewModel
-import  androidx.hilt.lifecycle.ViewModelInject
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jk.mindvalley.data.new_episode.NewEpisode
+import com.jk.mindvalley.data.new_episode.Data
 import com.jk.mindvalley.data.response.Resource
 import com.jk.mindvalley.services.IApi
 import com.jk.mindvalley.utils.NetworkHelper
@@ -17,26 +17,27 @@ class MainViewModel
     private val iApi: IApi,
     private val networkHelper: NetworkHelper
 ) : ViewModel() {
-    private val _users = MutableLiveData<Resource<NewEpisode>>()
-    val users: LiveData<Resource<NewEpisode>>
-        get() = _users
+    private val _dataListsMutableLiveData = MutableLiveData<Resource<Data>>()
+    val dataList: LiveData<Resource<Data>>
+        get() = _dataListsMutableLiveData
 
     init {
-        fetchUsers()
+        fetchData()
     }
 
-    private fun fetchUsers() {
+    private fun fetchData() {
         viewModelScope.launch {
-            _users.postValue(Resource.loading(null))
+            _dataListsMutableLiveData.postValue(Resource.loading(null))
             if (networkHelper.isNetworkConnected()) {
                 iApi.getNewEpisodeAsync().let {
                     try {
                         val response = it.await()
                         if (response.isSuccessful) {
                             val posts = response.body()
-                            _users.value = Resource.success(posts)
+                            _dataListsMutableLiveData.value = Resource.success(posts)
                         } else {
-                            _users.value = Resource.error(response.errorBody().toString(), null)
+                            _dataListsMutableLiveData.value =
+                                Resource.error(response.errorBody().toString(), null)
                             Log.d("MainActivity ", response.errorBody().toString())
                         }
                     } catch (e: Exception) {
@@ -45,7 +46,12 @@ class MainViewModel
                     }
 
                 }
-            } else _users.postValue(Resource.error("No internet connection", null))
+            } else _dataListsMutableLiveData.postValue(
+                Resource.error(
+                    "No internet connection",
+                    null
+                )
+            )
         }
     }
 }
