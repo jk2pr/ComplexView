@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jk.mindvalley.data.new_episode.Data
+import com.jk.mindvalley.data.new_episode.NewEpisode
 import com.jk.mindvalley.data.response.Resource
 import com.jk.mindvalley.services.IApi
 import com.jk.mindvalley.utils.NetworkHelper
@@ -17,27 +17,26 @@ class MainViewModel
     private val iApi: IApi,
     private val networkHelper: NetworkHelper
 ) : ViewModel() {
-    private val _dataListsMutableLiveData = MutableLiveData<Resource<Data>>()
-    val dataList: LiveData<Resource<Data>>
-        get() = _dataListsMutableLiveData
+    private val _users = MutableLiveData<Resource<NewEpisode>>()
+    val dataList: LiveData<Resource<NewEpisode>>
+        get() = _users
 
     init {
-        fetchData()
+        fetchUsers()
     }
 
-    private fun fetchData() {
+    private fun fetchUsers() {
         viewModelScope.launch {
-            _dataListsMutableLiveData.postValue(Resource.loading(null))
+            _users.postValue(Resource.loading(null))
             if (networkHelper.isNetworkConnected()) {
                 iApi.getNewEpisodeAsync().let {
                     try {
                         val response = it.await()
                         if (response.isSuccessful) {
                             val posts = response.body()
-                            _dataListsMutableLiveData.value = Resource.success(posts)
+                            _users.value = Resource.success(posts)
                         } else {
-                            _dataListsMutableLiveData.value =
-                                Resource.error(response.errorBody().toString(), null)
+                            _users.value = Resource.error(response.errorBody().toString(), null)
                             Log.d("MainActivity ", response.errorBody().toString())
                         }
                     } catch (e: Exception) {
@@ -46,12 +45,7 @@ class MainViewModel
                     }
 
                 }
-            } else _dataListsMutableLiveData.postValue(
-                Resource.error(
-                    "No internet connection",
-                    null
-                )
-            )
+            } else _users.postValue(Resource.error("No internet connection", null))
         }
     }
 }
