@@ -1,9 +1,10 @@
 package com.jk.mindvalley
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.main_activity.*
+
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 

@@ -4,15 +4,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
-import com.bumptech.glide.request.target.Target
 import com.jk.mindvalley.R
 import com.jk.mindvalley.data.new_episode.Media
 import kotlinx.android.synthetic.main.item_layout.view.*
 
 class MainAdapter(
-    private val users: ArrayList<Media>,
+    private val dataList: ArrayList<Media>,
     private val requestManager: RequestManager
 ) : RecyclerView.Adapter<MainAdapter.DataViewHolder>() {
 
@@ -35,12 +33,12 @@ class MainAdapter(
             )
         )
 
-    override fun getItemCount(): Int = users.size
+    override fun getItemCount(): Int = dataList.size
 
     override fun onBindViewHolder(holder: DataViewHolder, position: Int) =
-        holder.bind(users[position])
+        holder.bind(dataList[position])
 
     fun addData(list: List<Media>) {
-        users.addAll(list)
+        dataList.addAll(list)
     }
 }
