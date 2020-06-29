@@ -41,11 +41,12 @@ class MainFragment : Fragment() {
         mainViewModel.dataList.observe(viewLifecycleOwner, Observer {
             when (it.status) {
                 Status.SUCCESS -> {
-                    it.data?.let { data -> renderList(data.media) }
-                    recyclerView.visibility = View.VISIBLE
+                    it.data?.let { users -> renderList(users.data.media) }
+                    showLoader(false)
+
                 }
                 Status.LOADING -> {
-                    recyclerView.visibility = View.GONE
+                    showLoader(true)
                 }
                 Status.ERROR -> {
                     //Handle Error
@@ -53,6 +54,18 @@ class MainFragment : Fragment() {
                 }
             }
         })
+    }
+
+
+    private fun showLoader(isShowing: Boolean) {
+        if (isShowing) {
+            main.visibility = View.GONE
+            progress_circular.visibility = View.VISIBLE
+        } else {
+            main.visibility = View.VISIBLE
+            progress_circular.visibility = View.GONE
+
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
