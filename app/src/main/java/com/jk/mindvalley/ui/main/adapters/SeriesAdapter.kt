@@ -6,20 +6,19 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.jk.mindvalley.R
-import com.jk.mindvalley.data.new_episode.Media
-import kotlinx.android.synthetic.main.item_layout.view.*
+import com.jk.mindvalley.data.channels.Series
+import kotlinx.android.synthetic.main.item_new_episode.view.*
 
-class MainAdapter(
-    private val dataList: ArrayList<Media>,
+class SeriesAdapter(
+    private val dataList: ArrayList<Series>,
     private val requestManager: RequestManager
-) : RecyclerView.Adapter<MainAdapter.DataViewHolder>() {
+) : RecyclerView.Adapter<SeriesAdapter.DataViewHolder>() {
 
     inner class DataViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(media: Media) {
-            itemView.textView_name.text = media.title
-            itemView.textview_channel_name.text = media.channel.title
+        fun bind(series: Series) {
+            itemView.textview_channel_name.text = series.title
             requestManager
-                .load(media.coverAsset.url)
+                .load(series.coverAsset.url)
                 .into(itemView.image_cover_asset)
 
         }
@@ -28,7 +27,7 @@ class MainAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         DataViewHolder(
             LayoutInflater.from(parent.context).inflate(
-                R.layout.item_layout, parent,
+                R.layout.item_series, parent,
                 false
             )
         )
@@ -38,7 +37,7 @@ class MainAdapter(
     override fun onBindViewHolder(holder: DataViewHolder, position: Int) =
         holder.bind(dataList[position])
 
-    fun addData(list: List<Media>) {
+    fun addData(list: List<Series>) {
         dataList.addAll(list)
     }
 }

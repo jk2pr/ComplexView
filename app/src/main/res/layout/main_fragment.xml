@@ -55,7 +55,7 @@
             app:layout_constraintTop_toBottomOf="@+id/mentoring" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+            android:id="@+id/new_episode_recyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -66,16 +66,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/new_episode" />
 
-        <View
-            android:id="@+id/space"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginTop="55dp"
-            android:background="#3C434E"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/channel_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/recyclerView" />
-
+            app:layout_constraintTop_toBottomOf="@+id/new_episode_recyclerView" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

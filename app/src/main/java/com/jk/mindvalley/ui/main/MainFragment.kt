@@ -5,17 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.navGraphViewModels
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.RequestManager
 import com.jk.mindvalley.R
 import com.jk.mindvalley.data.new_episode.Media
 import com.jk.mindvalley.data.response.Status
-import com.jk.mindvalley.ui.main.adapters.MainAdapter
+import com.jk.mindvalley.ui.main.adapters.ChannelAdapter
+import com.jk.mindvalley.ui.main.adapters.NewEpisodeAdapter
+import com.jk.mindvalley.ui.main.adapters.SeriesAdapter
+import com.jk.mindvalley.utils.ui.UiUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.main_fragment.*
 import javax.inject.Inject
@@ -24,7 +25,8 @@ import javax.inject.Inject
 class MainFragment : Fragment() {
 
     private val mainViewModel: MainViewModel by navGraphViewModels(R.id.nav) { defaultViewModelProviderFactory }
-    private lateinit var adapter: MainAdapter
+    private lateinit var newEpisodeAdapter: NewEpisodeAdapter
+    private lateinit var channelAdapter: ChannelAdapter
 
     @Inject
     lateinit var requestManager: RequestManager
@@ -38,18 +40,31 @@ class MainFragment : Fragment() {
     }
 
     private fun setupObserver() {
-        mainViewModel.dataList.observe(viewLifecycleOwner, Observer {
+        mainViewModel.newEpisodeLiveData.observe(viewLifecycleOwner, Observer {
             when (it.status) {
                 Status.SUCCESS -> {
-                    it.data?.let { users -> renderList(users.data.media) }
+                    it.data?.let { res -> renderNewEpisode(res.data.media) }
                     showLoader(false)
-
                 }
                 Status.LOADING -> {
                     showLoader(true)
                 }
                 Status.ERROR -> {
-                    //Handle Error
+                    Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        })
+        mainViewModel.channelLiveData.observe(viewLifecycleOwner, Observer {
+            when (it.status) {
+                Status.SUCCESS -> {
+                    it.data?.let { res ->
+                        channelAdapter.addData(res.data.channels)
+                        channelAdapter.notifyItemRangeInserted(0,res.data.channels.size-1)
+                    }
+                }
+                Status.LOADING -> {
+                }
+                Status.ERROR -> {
                     Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
                 }
             }
@@ -74,25 +89,32 @@ class MainFragment : Fragment() {
         setupObserver()
     }
 
+
     private fun setupUI() {
 
-        recyclerView.layoutManager =
+
+        new_episode_recyclerView.layoutManager =
             LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-        adapter = MainAdapter(arrayListOf(), requestManager)
+        channel_recyclerview.layoutManager =
+            LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
 
-        val dec = DividerItemDecoration(
-            recyclerView.context,
-            (recyclerView.layoutManager as LinearLayoutManager).orientation
-        )
-        dec.setDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.shape)!!)
-        recyclerView.addItemDecoration(dec)
+        newEpisodeAdapter = NewEpisodeAdapter(arrayListOf(), requestManager)
+        channelAdapter = ChannelAdapter(arrayListOf(), requestManager)
+
+        new_episode_recyclerView.addItemDecoration(UiUtil.dec(new_episode_recyclerView))
+        channel_recyclerview.addItemDecoration(UiUtil.dec(channel_recyclerview))
 
 
-        recyclerView.adapter = adapter
+        new_episode_recyclerView.adapter = newEpisodeAdapter
+        channel_recyclerview.adapter = channelAdapter
+
     }
 
-    private fun renderList(medias: List<Media>) {
-        adapter.addData(medias)
-        adapter.notifyDataSetChanged()
+    private fun renderNewEpisode(medias: List<Media>) {
+        newEpisodeAdapter.addData(medias)
+        newEpisodeAdapter.notifyDataSetChanged()
+
     }
+
+
 }
