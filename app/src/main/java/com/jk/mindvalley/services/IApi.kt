@@ -1,5 +1,6 @@
 package com.jk.mindvalley.services
 
+import com.jk.mindvalley.data.categories.CategoriesData
 import com.jk.mindvalley.data.channels.ChannelData
 import com.jk.mindvalley.data.new_episode.NewEpisode
 import kotlinx.coroutines.Deferred
@@ -14,6 +15,10 @@ interface IApi {
     @GET("Xt12uVhM")
     fun getChannelAsync():
             Deferred<Response<ChannelData>>
+
+    @GET("A0CgArX3")
+    fun getCategoriesAsync():
+            Deferred<Response<CategoriesData>>
 
     // Response<List<Cat>>
 }

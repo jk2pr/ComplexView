@@ -48,5 +48,12 @@
 
     </style>
 
+    <style name="styleBrowseByCategories">
+        <item name="android:textSize">20sp</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textColor">#95989D</item>
+
+    </style>
+
 
 </resources>

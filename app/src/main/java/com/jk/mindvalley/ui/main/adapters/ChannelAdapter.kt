@@ -39,7 +39,7 @@ class ChannelAdapter(
                 recyclerViewSeries.visibility = View.VISIBLE
                 setUpRecyclerView(recyclerViewSeries)
                 val seriesAdapter =
-                    SeriesAdapter(arrayListOf(), requestManager).apply { setHasStableIds(true) }
+                    SeriesAdapter(arrayListOf(), requestManager)
                 recyclerViewSeries.adapter = seriesAdapter
                 renderSeries(
                     seriesAdapter,
@@ -56,7 +56,7 @@ class ChannelAdapter(
                 recyclerViewCourse.visibility = View.VISIBLE
                 setUpRecyclerView(recyclerViewCourse)
                 val courseAdapter =
-                    CourseAdapter(arrayListOf(), requestManager).apply { setHasStableIds(true) }
+                    CourseAdapter(arrayListOf(), requestManager)
                 recyclerViewCourse.adapter = courseAdapter
                 renderCourse(
                     courseAdapter,

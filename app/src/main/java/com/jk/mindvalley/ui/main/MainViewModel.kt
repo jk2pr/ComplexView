@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jk.mindvalley.data.categories.CategoriesData
 import com.jk.mindvalley.data.channels.ChannelData
 import com.jk.mindvalley.data.new_episode.NewEpisode
 import com.jk.mindvalley.data.response.Resource
@@ -20,11 +21,15 @@ class MainViewModel
 ) : ViewModel() {
     private val _newEpisodeMutableLiveData = MutableLiveData<Resource<NewEpisode>>()
     private val _channelMutableLiveData = MutableLiveData<Resource<ChannelData>>()
+    private val _categoriesMutableLiveData = MutableLiveData<Resource<CategoriesData>>()
 
     val newEpisodeLiveData: LiveData<Resource<NewEpisode>>
         get() = _newEpisodeMutableLiveData
     val channelLiveData: LiveData<Resource<ChannelData>>
         get() = _channelMutableLiveData
+
+    val categoriesLiveData: LiveData<Resource<CategoriesData>>
+        get() = _categoriesMutableLiveData
 
     init {
         fetchData()
@@ -60,6 +65,23 @@ class MainViewModel
                             _channelMutableLiveData.value = Resource.success(posts)
                         } else {
                             _channelMutableLiveData.value =
+                                Resource.error(response.errorBody().toString(), null)
+                            Log.d("MainActivity ", response.errorBody().toString())
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+
+                    }
+
+                }
+                iApi.getCategoriesAsync().let {
+                    try {
+                        val response = it.await()
+                        if (response.isSuccessful) {
+                            val posts = response.body()
+                            _categoriesMutableLiveData.value = Resource.success(posts)
+                        } else {
+                            _categoriesMutableLiveData.value =
                                 Resource.error(response.errorBody().toString(), null)
                             Log.d("MainActivity ", response.errorBody().toString())
                         }

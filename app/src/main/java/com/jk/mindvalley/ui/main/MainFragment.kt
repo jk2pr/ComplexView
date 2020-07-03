@@ -5,17 +5,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.navGraphViewModels
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.RequestManager
 import com.jk.mindvalley.R
 import com.jk.mindvalley.data.new_episode.Media
 import com.jk.mindvalley.data.response.Status
+import com.jk.mindvalley.ui.main.adapters.CategoryAdapter
 import com.jk.mindvalley.ui.main.adapters.ChannelAdapter
 import com.jk.mindvalley.ui.main.adapters.NewEpisodeAdapter
 import com.jk.mindvalley.ui.main.adapters.SeriesAdapter
+import com.jk.mindvalley.utils.ui.EqualSpaceItemDecoration
 import com.jk.mindvalley.utils.ui.UiUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.main_fragment.*
@@ -27,6 +32,7 @@ class MainFragment : Fragment() {
     private val mainViewModel: MainViewModel by navGraphViewModels(R.id.nav) { defaultViewModelProviderFactory }
     private lateinit var newEpisodeAdapter: NewEpisodeAdapter
     private lateinit var channelAdapter: ChannelAdapter
+    private lateinit var categoryAdapter: CategoryAdapter
 
     @Inject
     lateinit var requestManager: RequestManager
@@ -59,7 +65,22 @@ class MainFragment : Fragment() {
                 Status.SUCCESS -> {
                     it.data?.let { res ->
                         channelAdapter.addData(res.data.channels)
-                        channelAdapter.notifyItemRangeInserted(0,res.data.channels.size-1)
+                        channelAdapter.notifyItemRangeInserted(0, res.data.channels.size - 1)
+                    }
+                }
+                Status.LOADING -> {
+                }
+                Status.ERROR -> {
+                    Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        })
+        mainViewModel.categoriesLiveData.observe(viewLifecycleOwner, Observer {
+            when (it.status) {
+                Status.SUCCESS -> {
+                    it.data?.let { res ->
+                        categoryAdapter.addData(res.data.categories)
+                        categoryAdapter.notifyItemRangeInserted(0, res.data.categories.size - 1)
                     }
                 }
                 Status.LOADING -> {
@@ -97,16 +118,21 @@ class MainFragment : Fragment() {
             LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
         channel_recyclerview.layoutManager =
             LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+        category_recyclerview.layoutManager =
+            GridLayoutManager(activity, 2)
 
         newEpisodeAdapter = NewEpisodeAdapter(arrayListOf(), requestManager)
         channelAdapter = ChannelAdapter(arrayListOf(), requestManager)
+        categoryAdapter = CategoryAdapter(arrayListOf())
 
         new_episode_recyclerView.addItemDecoration(UiUtil.dec(new_episode_recyclerView))
         channel_recyclerview.addItemDecoration(UiUtil.dec(channel_recyclerview))
 
+        category_recyclerview.addItemDecoration(EqualSpaceItemDecoration(16))
 
         new_episode_recyclerView.adapter = newEpisodeAdapter
         channel_recyclerview.adapter = channelAdapter
+        category_recyclerview.adapter = categoryAdapter
 
     }
 
