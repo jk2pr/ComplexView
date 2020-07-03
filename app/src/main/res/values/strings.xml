@@ -3,4 +3,5 @@
     <string name="channel">Channels</string>
     <string name="episodes">%d episodes</string>
     <string name="new_episode">New Episodes</string>
+    <string name="browse_by_c">Browse by categories</string>
 </resources>
