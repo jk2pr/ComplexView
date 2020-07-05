@@ -15,7 +15,7 @@ import com.jk.mindvalley.db.dao.ChannelDataDao
 import com.jk.mindvalley.db.dao.NewEpisodeDao
 import com.jk.mindvalley.services.IApi
 import com.jk.mindvalley.utils.NetworkHelper
-import kotlinx.coroutines.*
+import kotlinx.coroutines.launch
 
 class MainViewModel
 @ViewModelInject constructor(
@@ -41,7 +41,7 @@ class MainViewModel
         fetchData()
     }
 
-    private fun fetchData() {
+    fun fetchData() {
         viewModelScope.launch {
             _newEpisodeMutableLiveData.postValue(Resource.loading(null))
             if (networkHelper.isNetworkConnected()) {
@@ -53,7 +53,7 @@ class MainViewModel
                             val posts = response.body()
                             _newEpisodeMutableLiveData.value = Resource.success(posts)
                             //Save into DB for offline Display
-                            posts?.let { saveNewEpisodeInToDb( posts) }
+                            posts?.let { saveNewEpisodeInToDb(posts) }
                         } else {
                             _newEpisodeMutableLiveData.value =
                                 Resource.error(response.errorBody().toString(), null)
@@ -70,7 +70,7 @@ class MainViewModel
                         if (response.isSuccessful) {
                             val posts = response.body()
                             _channelMutableLiveData.value = Resource.success(posts)
-                            posts?.let { saveChannelInToDb( posts) }
+                            posts?.let { saveChannelInToDb(posts) }
                         } else {
                             _channelMutableLiveData.value =
                                 Resource.error(response.errorBody().toString(), null)
@@ -88,7 +88,7 @@ class MainViewModel
                         if (response.isSuccessful) {
                             val posts = response.body()
                             _categoriesMutableLiveData.value = Resource.success(posts)
-                            posts?.let { saveNewCategoriesInToDb( posts) }
+                            posts?.let { saveNewCategoriesInToDb(posts) }
 
                         } else {
                             _categoriesMutableLiveData.value =
@@ -105,37 +105,31 @@ class MainViewModel
                 _newEpisodeMutableLiveData.postValue(Resource.error("No internet connection", null))
                 //Get from Offline
                 viewModelScope.launch {
-                    _newEpisodeMutableLiveData.value = Resource.success(newEpisodeDao.getAllNewEpisodeAsync())
+                    _newEpisodeMutableLiveData.value =
+                        Resource.success(newEpisodeDao.getAllNewEpisodeAsync())
 
                     _channelMutableLiveData.value =
                         Resource.success(channelDataDao.getAllChannelAsync())
 
-                    _categoriesMutableLiveData.value=
+                    _categoriesMutableLiveData.value =
                         Resource.success(categoryDao.getAllCategoriesAsync())
                 }
             }
         }
     }
 
-    private suspend fun saveNewEpisodeInToDb( posts: NewEpisode) {
+    private suspend fun saveNewEpisodeInToDb(posts: NewEpisode) {
         viewModelScope.launch { newEpisodeDao.insert(posts) }
 
-    } private suspend fun saveChannelInToDb( posts: ChannelData) {
-        viewModelScope.launch {
-          val d=  channelDataDao.insert(posts)
-            print(d)
-        }
-
     }
-    private suspend fun  saveNewCategoriesInToDb( posts: CategoriesData) {
-        viewModelScope.launch {
-          val d=  categoryDao.insert(posts)
-            print(d)
-        }
+
+    private suspend fun saveChannelInToDb(posts: ChannelData) {
+        viewModelScope.launch { channelDataDao.insert(posts) }
 
     }
 
-    private fun handleNewEpisodeOffLine(response: NewEpisode) {
-        _newEpisodeMutableLiveData.value = Resource.success(response)
+    private suspend fun saveNewCategoriesInToDb(posts: CategoriesData) {
+        viewModelScope.launch { categoryDao.insert(posts) }
+
     }
 }
