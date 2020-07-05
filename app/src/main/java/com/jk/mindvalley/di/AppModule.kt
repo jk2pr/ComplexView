@@ -3,6 +3,7 @@ package com.jk.mindvalley.di
 import android.content.Context
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.jk.mindvalley.R
 import dagger.Module
@@ -19,7 +20,9 @@ object AppModule  {
     @Singleton
     fun provideGlideRequestOptions(): RequestOptions {
         return RequestOptions()
+            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
             .error(R.drawable.ic_terrain_black_24dp)
+
     }
 
     @Provides
@@ -29,6 +32,7 @@ object AppModule  {
         application: Context,
         requestOptions: RequestOptions
     ): RequestManager {
-        return Glide.with(application).setDefaultRequestOptions(requestOptions)
+        return Glide.with(application)
+            .setDefaultRequestOptions(requestOptions)
     }
 }

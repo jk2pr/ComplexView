@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.jk.mindvalley.R
 import com.jk.mindvalley.data.new_episode.Media
 import kotlinx.android.synthetic.main.item_new_episode.view.*
