@@ -7,7 +7,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.jk.mindvalley.R
 import com.jk.mindvalley.data.categories.Categories
-import kotlinx.android.synthetic.main.item_channel.view.*
 
 class CategoryAdapter(
     private val dataList: ArrayList<Categories>
