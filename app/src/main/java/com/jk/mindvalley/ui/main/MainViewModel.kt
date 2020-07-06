@@ -17,6 +17,7 @@ import com.jk.mindvalley.services.IApi
 import com.jk.mindvalley.utils.NetworkHelper
 import kotlinx.coroutines.launch
 
+
 class MainViewModel
 @ViewModelInject constructor(
     private val iApi: IApi,
@@ -41,7 +42,7 @@ class MainViewModel
         fetchData()
     }
 
-    fun fetchData() {
+  private  fun fetchData() {
         viewModelScope.launch {
             _newEpisodeMutableLiveData.postValue(Resource.loading(null))
             if (networkHelper.isNetworkConnected()) {
@@ -101,16 +102,15 @@ class MainViewModel
                     }
 
                 }
-            } else {
+            }
+            else {
                 _newEpisodeMutableLiveData.postValue(Resource.error("No internet connection", null))
                 //Get from Offline
                 viewModelScope.launch {
                     _newEpisodeMutableLiveData.value =
                         Resource.success(newEpisodeDao.getAllNewEpisodeAsync())
-
                     _channelMutableLiveData.value =
                         Resource.success(channelDataDao.getAllChannelAsync())
-
                     _categoriesMutableLiveData.value =
                         Resource.success(categoryDao.getAllCategoriesAsync())
                 }

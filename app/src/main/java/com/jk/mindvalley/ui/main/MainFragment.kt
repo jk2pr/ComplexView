@@ -5,11 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.navGraphViewModels
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.RequestManager
@@ -19,7 +17,6 @@ import com.jk.mindvalley.data.response.Status
 import com.jk.mindvalley.ui.main.adapters.CategoryAdapter
 import com.jk.mindvalley.ui.main.adapters.ChannelAdapter
 import com.jk.mindvalley.ui.main.adapters.NewEpisodeAdapter
-import com.jk.mindvalley.ui.main.adapters.SeriesAdapter
 import com.jk.mindvalley.utils.ui.EqualSpaceItemDecoration
 import com.jk.mindvalley.utils.ui.UiUtil
 import dagger.hilt.android.AndroidEntryPoint
