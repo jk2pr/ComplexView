@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jk.mindvalley.data.FinalData
 import com.jk.mindvalley.data.categories.CategoriesData
 import com.jk.mindvalley.data.channels.ChannelData
 import com.jk.mindvalley.data.new_episode.NewEpisode
@@ -15,6 +16,7 @@ import com.jk.mindvalley.db.dao.ChannelDataDao
 import com.jk.mindvalley.db.dao.NewEpisodeDao
 import com.jk.mindvalley.services.IApi
 import com.jk.mindvalley.utils.NetworkHelper
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 
@@ -26,37 +28,37 @@ class MainViewModel
     private val channelDataDao: ChannelDataDao,
     private val categoryDao: CategoryDao
 ) : ViewModel() {
-    private val _newEpisodeMutableLiveData = MutableLiveData<Resource<NewEpisode>>()
-    private val _channelMutableLiveData = MutableLiveData<Resource<ChannelData>>()
-    private val _categoriesMutableLiveData = MutableLiveData<Resource<CategoriesData>>()
+    private val _finalLiveData = MutableLiveData<Resource<FinalData>>()
 
-    val newEpisodeLiveData: LiveData<Resource<NewEpisode>>
-        get() = _newEpisodeMutableLiveData
-    val channelLiveData: LiveData<Resource<ChannelData>>
-        get() = _channelMutableLiveData
-
-    val categoriesLiveData: LiveData<Resource<CategoriesData>>
-        get() = _categoriesMutableLiveData
+    val fianlDataLiveData: LiveData<Resource<FinalData>>
+        get() = _finalLiveData
 
     init {
         fetchData()
     }
 
-  private  fun fetchData() {
+    private fun fetchData() {
         viewModelScope.launch {
-            _newEpisodeMutableLiveData.postValue(Resource.loading(null))
+            _finalLiveData.postValue(Resource.loading(null))
             if (networkHelper.isNetworkConnected()) {
                 //New Episode
-                iApi.getNewEpisodeAsync().let {
+                val newEpisodeDeferred = async { iApi.getNewEpisodeAsync() }
+                val channelDeferred = async { iApi.getChannelAsync() }
+                val cateDeferred = async { iApi.getCategoriesAsync() }
+
+                var allNewEpisode: NewEpisode? = null
+                var allChannelData: ChannelData? = null
+                var allCategoriesData: CategoriesData? = null
+                newEpisodeDeferred.await().let {
                     try {
-                        val response = it.await()
+                        val response = it
                         if (response.isSuccessful) {
                             val posts = response.body()
-                            _newEpisodeMutableLiveData.value = Resource.success(posts)
+                            allNewEpisode = posts
                             //Save into DB for offline Display
                             posts?.let { saveNewEpisodeInToDb(posts) }
                         } else {
-                            _newEpisodeMutableLiveData.value =
+                            _finalLiveData.value =
                                 Resource.error(response.errorBody().toString(), null)
                             Log.d("MainActivity ", response.errorBody().toString())
                         }
@@ -65,15 +67,15 @@ class MainViewModel
                     }
                 }
 
-                iApi.getChannelAsync().let {
+                channelDeferred.await().let {
                     try {
-                        val response = it.await()
+                        val response = it
                         if (response.isSuccessful) {
                             val posts = response.body()
-                            _channelMutableLiveData.value = Resource.success(posts)
+                            allChannelData = posts
                             posts?.let { saveChannelInToDb(posts) }
                         } else {
-                            _channelMutableLiveData.value =
+                            _finalLiveData.value =
                                 Resource.error(response.errorBody().toString(), null)
                             Log.d("MainActivity ", response.errorBody().toString())
                         }
@@ -83,16 +85,16 @@ class MainViewModel
                     }
 
                 }
-                iApi.getCategoriesAsync().let {
+                cateDeferred.await().let {
                     try {
-                        val response = it.await()
+                        val response = it
                         if (response.isSuccessful) {
                             val posts = response.body()
-                            _categoriesMutableLiveData.value = Resource.success(posts)
+                            allCategoriesData = posts
                             posts?.let { saveNewCategoriesInToDb(posts) }
 
                         } else {
-                            _categoriesMutableLiveData.value =
+                            _finalLiveData.value =
                                 Resource.error(response.errorBody().toString(), null)
                             Log.d("MainActivity ", response.errorBody().toString())
                         }
@@ -102,21 +104,23 @@ class MainViewModel
                     }
 
                 }
-            }
-            else {
-                _newEpisodeMutableLiveData.postValue(Resource.error("No internet connection", null))
+                val finalData = FinalData(allNewEpisode, allChannelData, allCategoriesData)
+                _finalLiveData.value = Resource.success(finalData)
+
+            } else {
+                _finalLiveData.postValue(Resource.error("No internet connection", null))
                 //Get from Offline
-                viewModelScope.launch {
-                    _newEpisodeMutableLiveData.value =
-                        Resource.success(newEpisodeDao.getAllNewEpisodeAsync())
-                    _channelMutableLiveData.value =
-                        Resource.success(channelDataDao.getAllChannelAsync())
-                    _categoriesMutableLiveData.value =
-                        Resource.success(categoryDao.getAllCategoriesAsync())
-                }
+                    val finalData = FinalData(
+                        newEpisodeDao.getAllNewEpisodeAsync(),
+                        channelDataDao.getAllChannelAsync(),
+                        categoryDao.getAllCategoriesAsync()
+                    )
+                    _finalLiveData.value = Resource.success(finalData)
+
             }
         }
     }
+
 
     private suspend fun saveNewEpisodeInToDb(posts: NewEpisode) {
         viewModelScope.launch { newEpisodeDao.insert(posts) }
