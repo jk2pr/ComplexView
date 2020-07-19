@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.RequestManager
 import com.jk.mindvalley.R
+import com.jk.mindvalley.data.categories.Categories
+import com.jk.mindvalley.data.channels.Channels
 import com.jk.mindvalley.data.new_episode.Media
 import com.jk.mindvalley.data.response.Status
 import com.jk.mindvalley.ui.main.adapters.CategoryAdapter
@@ -43,44 +45,18 @@ class MainFragment : Fragment() {
     }
 
     private fun setupObserver() {
-        mainViewModel.newEpisodeLiveData.observe(viewLifecycleOwner, Observer {
+        mainViewModel.fianlDataLiveData.observe(viewLifecycleOwner, Observer {
             when (it.status) {
                 Status.SUCCESS -> {
-                    it.data?.let { res -> renderNewEpisode(res.data.media) }
+                    it.data?.let { response ->
+                        renderNewEpisode(response.newEpisodeData?.data?.media)
+                        renderChannel(response.channelData?.data?.channels)
+                        renderCategories(response.categoryData?.data?.categories)
+                    }
                     showLoader(false)
                 }
                 Status.LOADING -> {
                     showLoader(true)
-                }
-                Status.ERROR -> {
-                    Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
-                }
-            }
-        })
-        mainViewModel.channelLiveData.observe(viewLifecycleOwner, Observer {
-            when (it.status) {
-                Status.SUCCESS -> {
-                    it.data?.let { res ->
-                        channelAdapter.addData(res.data.channels)
-                        channelAdapter.notifyItemRangeInserted(0, res.data.channels.size - 1)
-                    }
-                }
-                Status.LOADING -> {
-                }
-                Status.ERROR -> {
-                    Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
-                }
-            }
-        })
-        mainViewModel.categoriesLiveData.observe(viewLifecycleOwner, Observer {
-            when (it.status) {
-                Status.SUCCESS -> {
-                    it.data?.let { res ->
-                        categoryAdapter.addData(res.data.categories)
-                        categoryAdapter.notifyItemRangeInserted(0, res.data.categories.size - 1)
-                    }
-                }
-                Status.LOADING -> {
                 }
                 Status.ERROR -> {
                     Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
@@ -133,10 +109,22 @@ class MainFragment : Fragment() {
 
     }
 
-    private fun renderNewEpisode(medias: List<Media>) {
-        newEpisodeAdapter.addData(medias)
-        newEpisodeAdapter.notifyDataSetChanged()
-
+    private fun renderNewEpisode(medias: List<Media>?) {
+        medias?.let {
+            newEpisodeAdapter.addData(medias)
+            newEpisodeAdapter.notifyDataSetChanged()
+        }
+    }
+    private fun renderChannel(channels: List<Channels>?) {
+        channels?.let {
+            channelAdapter.addData(channels)
+            channelAdapter.notifyDataSetChanged()
+        }
+    } private fun renderCategories(categories: List<Categories>?) {
+        categories?.let {
+            categoryAdapter.addData(categories)
+            categoryAdapter.notifyDataSetChanged()
+        }
     }
 
 
