@@ -13,11 +13,19 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
+        testApplicationId "com.jk.mindvalley.test"
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled=true
     }
     compileOptions {
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
     }
     buildTypes {
 
@@ -39,6 +47,7 @@ android {
         }
 
     }
+
     dataBinding {
         enabled = true
     }
@@ -120,17 +129,20 @@ dependencies {
 
     // Espresso
     def androidx_test_espresso = "3.2.0"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$androidx_test_espresso"
+   // androidTestImplementation "androidx.test.espresso:espresso-core:$androidx_test_espresso"
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$androidx_test_espresso"
     implementation "androidx.test.espresso:espresso-idling-resource:$androidx_test_espresso"
 
     // androidx.test
-    def androidx_test = "1.1.1"
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    androidTestImplementation 'androidx.test:rules:1.2.0'
-    androidTestImplementation "androidx.test:runner:$androidx_test"
-    androidTestImplementation "androidx.test:core:$androidx_test"
-    androidTestImplementation "androidx.test.ext:junit-ktx:$androidx_test"
+
+    testImplementation "junit:junit:4.13"
+    testImplementation "org.robolectric:robolectric:4.2"
+    testImplementation "androidx.test:core:1.2.0"
+    testImplementation "androidx.test:runner:1.2.0"
+    testImplementation "androidx.test.ext:junit:1.1.1"
+    testImplementation "androidx.test.ext:truth:1.2.0"
+    testImplementation  "androidx.test.espresso:espresso-core:3.2.0"
+    testImplementation  "androidx.test.espresso:espresso-intents:3.2.0"
 
     // androidx.fragment
     def fragment_version = "1.2.5" // must use for new factory stuff
@@ -142,4 +154,5 @@ dependencies {
 
 //MultiDex
     implementation 'androidx.multidex:multidex:2.0.1'
+
 }

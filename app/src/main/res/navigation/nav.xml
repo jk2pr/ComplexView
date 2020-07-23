@@ -3,10 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav"
-    app:startDestination="@+id/main_fragment"
-    tools:ignore="UnusedNavigation">
+
+    app:startDestination="@+id/main_fragment">
 
     <fragment
+tools:layout="@layout/main_fragment"
         android:id="@+id/main_fragment"
         android:name="com.jk.mindvalley.ui.main.MainFragment" />
 </navigation>
