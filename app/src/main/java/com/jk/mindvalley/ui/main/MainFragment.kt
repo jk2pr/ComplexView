@@ -15,14 +15,16 @@ import com.jk.mindvalley.R
 import com.jk.mindvalley.data.categories.Categories
 import com.jk.mindvalley.data.channels.Channels
 import com.jk.mindvalley.data.new_episode.Media
-import com.jk.mindvalley.data.response.Status
+import com.jk.mindvalley.data.response.Resource
 import com.jk.mindvalley.ui.main.adapters.CategoryAdapter
 import com.jk.mindvalley.ui.main.adapters.ChannelAdapter
 import com.jk.mindvalley.ui.main.adapters.NewEpisodeAdapter
+import com.jk.mindvalley.utils.constants.SpaceConstant
 import com.jk.mindvalley.utils.ui.EqualSpaceItemDecoration
 import com.jk.mindvalley.utils.ui.UiUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.main_fragment.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -45,21 +47,22 @@ class MainFragment : Fragment() {
     }
 
     private fun setupObserver() {
-        mainViewModel.fianlDataLiveData.observe(viewLifecycleOwner, Observer {
-            when (it.status) {
-                Status.SUCCESS -> {
-                    it.data?.let { response ->
+        mainViewModel.finalDataLiveData.observe(viewLifecycleOwner, Observer {
+            when (it) {
+              is  Resource.Success -> {
+                    it.data.let { response ->
                         renderNewEpisode(response.newEpisodeData?.data?.media)
                         renderChannel(response.channelData?.data?.channels)
                         renderCategories(response.categoryData?.data?.categories)
                     }
                     showLoader(false)
                 }
-                Status.LOADING -> {
+               is  Resource.Loading -> {
                     showLoader(true)
                 }
-                Status.ERROR -> {
-                    Toast.makeText(activity, it.message, Toast.LENGTH_LONG).show()
+                is Resource.Error -> {
+                    showLoader(false)
+                    Toast.makeText(activity, it.exception.localizedMessage, Toast.LENGTH_LONG).show()
                 }
             }
         })
@@ -77,10 +80,12 @@ class MainFragment : Fragment() {
         }
     }
 
+    @ExperimentalCoroutinesApi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupUI()
         setupObserver()
+        mainViewModel.setState(MainViewModel.MainState.GetFinalDataEvent)
     }
 
 
@@ -98,10 +103,10 @@ class MainFragment : Fragment() {
         channelAdapter = ChannelAdapter(arrayListOf(), requestManager)
         categoryAdapter = CategoryAdapter(arrayListOf())
 
-        new_episode_recyclerView.addItemDecoration(UiUtil.dec(new_episode_recyclerView))
-        channel_recyclerview.addItemDecoration(UiUtil.dec(channel_recyclerview))
+        new_episode_recyclerView.addItemDecoration(UiUtil.itemDecoration(new_episode_recyclerView))
+        channel_recyclerview.addItemDecoration(UiUtil.itemDecoration(channel_recyclerview))
 
-        category_recyclerview.addItemDecoration(EqualSpaceItemDecoration(16))
+        category_recyclerview.addItemDecoration(EqualSpaceItemDecoration(SpaceConstant.spaceHeight))
 
         new_episode_recyclerView.adapter = newEpisodeAdapter
         channel_recyclerview.adapter = channelAdapter

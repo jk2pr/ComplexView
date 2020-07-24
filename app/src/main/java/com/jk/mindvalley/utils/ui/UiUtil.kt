@@ -8,7 +8,7 @@ import com.jk.mindvalley.R
 
 object UiUtil {
 
-    fun dec(recyclerView: RecyclerView): DividerItemDecoration {
+    fun itemDecoration(recyclerView: RecyclerView): DividerItemDecoration {
         val context = recyclerView.context
         return DividerItemDecoration(
             context,

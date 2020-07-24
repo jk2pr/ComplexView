@@ -1,11 +1,9 @@
 package com.jk.mindvalley.ui.main
 
-import android.util.Log
+import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import com.jk.mindvalley.services.GetFinalData
 import com.jk.mindvalley.data.FinalData
 import com.jk.mindvalley.data.categories.CategoriesData
 import com.jk.mindvalley.data.channels.ChannelData
@@ -14,32 +12,50 @@ import com.jk.mindvalley.data.response.Resource
 import com.jk.mindvalley.db.dao.CategoryDao
 import com.jk.mindvalley.db.dao.ChannelDataDao
 import com.jk.mindvalley.db.dao.NewEpisodeDao
-import com.jk.mindvalley.services.IApi
 import com.jk.mindvalley.utils.NetworkHelper
-import kotlinx.coroutines.async
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 
 class MainViewModel
 @ViewModelInject constructor(
-    private val iApi: IApi,
+    private val getFinalData: GetFinalData,
     private val networkHelper: NetworkHelper,
     private val newEpisodeDao: NewEpisodeDao,
     private val channelDataDao: ChannelDataDao,
-    private val categoryDao: CategoryDao
+    private val categoryDao: CategoryDao,
+    @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val _finalLiveData = MutableLiveData<Resource<FinalData>>()
+    private val _finalMutableLiveData = MutableLiveData<Resource<FinalData>>()
 
-    val fianlDataLiveData: LiveData<Resource<FinalData>>
-        get() = _finalLiveData
+    val finalDataLiveData: LiveData<Resource<FinalData>>
+        get() = _finalMutableLiveData
 
-    init {
-        fetchData()
+    @ExperimentalCoroutinesApi
+    fun setState(mainState: MainState) {
+        viewModelScope.launch {
+            when (mainState) {
+                is MainState.GetFinalDataEvent -> {
+                    getFinalData.execute().onEach {
+                        _finalMutableLiveData.value = it
+                    }.launchIn(viewModelScope)
+                }
+            }
+        }
     }
 
-    private fun fetchData() {
+    sealed class MainState {
+
+        object GetFinalDataEvent : MainState()
+
+        object None : MainState()
+    }
+    /*private fun fetchData() :FinalData{
         viewModelScope.launch {
-            _finalLiveData.postValue(Resource.loading(null))
+            _finalLiveData.postValue(Resource.Loading)
             if (networkHelper.isNetworkConnected()) {
                 //New Episode
                 val newEpisodeDeferred = async { iApi.getNewEpisodeAsync() }
@@ -59,7 +75,7 @@ class MainViewModel
                             posts?.let { saveNewEpisodeInToDb(posts) }
                         } else {
                             _finalLiveData.value =
-                                Resource.error(response.errorBody().toString(), null)
+                                Resource.Error(Exception(response.errorBody().toString()))
                             Log.d("MainActivity ", response.errorBody().toString())
                         }
                     } catch (e: Exception) {
@@ -76,7 +92,7 @@ class MainViewModel
                             posts?.let { saveChannelInToDb(posts) }
                         } else {
                             _finalLiveData.value =
-                                Resource.error(response.errorBody().toString(), null)
+                                Resource.Error(Exception(response.errorBody().toString()))
                             Log.d("MainActivity ", response.errorBody().toString())
                         }
                     } catch (e: Exception) {
@@ -95,7 +111,7 @@ class MainViewModel
 
                         } else {
                             _finalLiveData.value =
-                                Resource.error(response.errorBody().toString(), null)
+                                Resource.Error(Exception(response.errorBody().toString()))
                             Log.d("MainActivity ", response.errorBody().toString())
                         }
                     } catch (e: Exception) {
@@ -105,21 +121,21 @@ class MainViewModel
 
                 }
                 val finalData = FinalData(allNewEpisode, allChannelData, allCategoriesData)
-                _finalLiveData.value = Resource.success(finalData)
+                _finalLiveData.value = Resource.Success(finalData)
 
             } else {
-                _finalLiveData.postValue(Resource.error("No internet connection", null))
+                _finalLiveData.postValue( Resource.Error(Exception("No Internet connection found")))
                 //Get from Offline
                     val finalData = FinalData(
                         newEpisodeDao.getAllNewEpisodeAsync(),
                         channelDataDao.getAllChannelAsync(),
                         categoryDao.getAllCategoriesAsync()
                     )
-                    _finalLiveData.value = Resource.success(finalData)
+                    _finalLiveData.value = Resource.Success(finalData)
 
             }
         }
-    }
+    }*/
 
 
     private suspend fun saveNewEpisodeInToDb(posts: NewEpisode) {

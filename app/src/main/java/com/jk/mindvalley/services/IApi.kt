@@ -8,16 +8,12 @@ import retrofit2.http.GET
 
 interface IApi {
     @GET("z5AExTtw")
-   suspend fun getNewEpisodeAsync():
-            Response<NewEpisode>
+    suspend fun getNewEpisode(): NewEpisode
 
     @GET("Xt12uVhM")
-  suspend  fun getChannelAsync():
-            Response<ChannelData>
+    suspend fun getChannel(): ChannelData
 
     @GET("A0CgArX3")
-  suspend  fun getCategoriesAsync():
-            Response<CategoriesData>
+    suspend fun getCategories(): CategoriesData
 
-    // Response<List<Cat>>
 }
