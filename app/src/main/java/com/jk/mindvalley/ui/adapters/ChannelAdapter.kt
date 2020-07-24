@@ -27,7 +27,7 @@ class ChannelAdapter(
                 isNestedScrollingEnabled = false
                 setHasFixedSize(true)
                 setItemViewCacheSize(20)
-                addItemDecoration(UiUtil.dec(this))
+                addItemDecoration(UiUtil.itemDecoration(this))
             }
         }
 
